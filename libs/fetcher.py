@@ -25,6 +25,13 @@ import config
 from libs import cookie_utils, utils
 
 logger = logging.getLogger('qiandao.fetcher')
+logger.setLevel(logging.DEBUG)
+# 创建一个handler，用于写入日志文件
+fh = logging.FileHandler('test.log')
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 
 class Fetcher(object):
@@ -363,7 +370,17 @@ class Fetcher(object):
                 setattr(req, 'proxy_%s' % key, proxy[key])
 
         try:
+            if config.debug:
+                logger.info('request:'+ req.url)
+                logger.info(req.headers)
+                logger.info('request_body:')
+                logger.info(req.body)
             response = yield self.client.fetch(req)
+            if config.debug:
+                logger.info('response:'+ str(response.code))
+                logger.info(response.headers)
+                logger.info('response_body:')
+                logger.info(response.body)
         except httpclient.HTTPError as e:
             if not e.response:
                 raise
